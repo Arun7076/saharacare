@@ -33,9 +33,9 @@ A thorough inspection of the original application at `c:\Users\ACER\Documents\Ha
 
 ## 3. Feature Inventory & MVP Scoping
 
-To guarantee a completely reliable, self-contained, and demonstrable application during the Codefest hackathon, features are categorized into:
+To guarantee a completely reliable, self-contained, and demonstrable application during the Codefest hackathon, features were categorized into:
 
-### Category 1: Essential MVP Features (In Scope)
+### Category 1: Essential MVP Features (Implemented)
 1. **Patient Medication & Schedule Management:**
    - Add, edit, view, and toggle active medications with dosage details and instructions.
    - Schedule morning, afternoon, evening, and night timings.
@@ -43,7 +43,7 @@ To guarantee a completely reliable, self-contained, and demonstrable application
    - Materialize today's doses with states: `scheduled` -> `taken` (with timestamp) or `missed` / `late`.
    - Adherence calculation (Percentage of eligible doses taken on time).
 3. **Audio-Assisted Accessibility System:**
-   - **Text-to-Speech (TTS):** One-tap audible reading of today's medication timeline, dosage quantities, instructions, and adherence summary in clear synthesized speech.
+   - **Text-to-Speech (TTS):** One-tap audible reading of today's medication timeline, dosage quantities, instructions, and adherence summary in clear synthesized speech (English and Nepali).
    - **Voice Input (STT):** Microphone-based voice search and symptom/note dictation with clear recording indicators and permission checks.
    - **Accessible Fallback:** Deterministic text fallback if the browser audio API is unavailable or denied.
 4. **Caregiver Adherence Dashboard & Alerts:**
@@ -86,23 +86,14 @@ To guarantee a completely reliable, self-contained, and demonstrable application
 
 ```mermaid
 flowchart TD
-    S0["Stage 0: Analysis & Planning (Docs & Strategy)"] --> S1["Stage 1: Fresh Project Foundation (Scaffold & Build)"]
-    S1 --> S2["Stage 2: Core Frontend (Layout & Mock User Journey)"]
-    S2 --> S3["Stage 3: UI/UX Redesign (SaharaCare System & Polish)"]
-    S3 --> S4["Stage 4: Backend Implementation (SQLite & API Routes)"]
-    S4 --> S5["Stage 5: Full Integration (E2E Connected Flows)"]
-    S5 --> S6["Stage 6: Audio-Assisted System (TTS, STT, Fallbacks)"]
-    S6 --> S7["Stage 7: Testing, Documentation & Final Polish"]
+    S0["Stage 0: Analysis & Planning (f52bd4c)"] --> S1["Stage 1: Fresh Project Foundation (730d8f2)"]
+    S1 --> S2["Stage 2: Core Frontend (4b41bb5)"]
+    S2 --> S3["Stage 3: UI/UX Redesign & Accessibility (5bbf031)"]
+    S3 --> S4["Stage 4: Backend SQLite & API Handlers (3926fc5)"]
+    S4 --> S5["Stage 5: Full Integration & Mutations (39326b5)"]
+    S5 --> S6["Stage 6: Audio-Assisted System (6c226c5)"]
+    S6 --> S7["Stage 7: Verification, Tests & Final Polish"]
 ```
-
-- **Stage 0:** Initial analysis, feature inventory, technical architecture, and Codefest plan.
-- **Stage 1:** Clean scaffold, dependencies, TypeScript setup, Next.js root layout, basic routing.
-- **Stage 2:** Core frontend layouts, patient dashboard, medication manager, caregiver view, mock data.
-- **Stage 3:** Design system implementation (forest green palette, accessible typography, responsive mobile cards, high-contrast controls).
-- **Stage 4:** SQLite schema creation, CRUD services, validation, API route handlers (`/api/medications`, `/api/doses`, `/api/caregiver`, `/api/health`).
-- **Stage 5:** End-to-end integration connecting frontend to backend API routes, removing mock data, and verifying live dosage updates.
-- **Stage 6:** Audio-assisted accessibility: speech synthesis reader, voice command/search listener, mic status indicators, bilingual voice locale switching.
-- **Stage 7:** Unit/API tests, comprehensive error handling, documentation finalization, and readiness verification.
 
 ---
 
@@ -110,4 +101,4 @@ flowchart TD
 
 - **Independent Rebuild:** All files are newly authored in this workspace (`C:\Users\ACER\Documents\Saharacare`). The original app remains intact at `..\Hackathon\saharacare`.
 - **Git Discipline:** Local commits created per stage on `codefest/saharacare-mvp` branch; `main` is kept untouched at its initial setup commit until explicit user approval for merge.
-- **Functional Guarantee:** The application will run entirely offline with `npm run dev` and `npm test` without requiring external cloud accounts or paid API tokens.
+- **Functional Guarantee:** The application runs entirely offline with `npm run dev` and `npm test` without requiring external cloud accounts or paid API tokens.

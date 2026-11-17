@@ -26,7 +26,7 @@ SaharaCare MVP is engineered as a robust, lightweight, self-contained full-stack
 |  API Route Handlers:                                                               |
 |  - GET/POST     /api/medications   (Fetch active list, create new medication)      |
 |  - GET/PATCH    /api/doses         (Today's Kathmandu schedule, mark taken)        |
-|  - GET/POST     /api/caregiver     (Adherence score, caregiver alert records)      |
+|  - GET          /api/caregiver     (Adherence score, caregiver alert records)      |
 |  - GET          /api/health        (Health check, system status, uptime)           |
 |                                     |                                              |
 |                                     v                                              |
@@ -63,10 +63,7 @@ c:\Users\ACER\Documents\Saharacare/
 │   ├── app/
 │   │   ├── layout.tsx           # Global Root layout with header & accessibility
 │   │   ├── page.tsx             # Main dashboard (Patient & Caregiver switcher)
-│   │   ├── medicines/
-│   │   │   └── page.tsx         # Medication management & creation page
-│   │   ├── caregiver/
-│   │   │   └── page.tsx         # Caregiver adherence & monitoring dashboard
+│   │   ├── globals.css          # Tailwind directives & accessibility sizing
 │   │   └── api/
 │   │       ├── health/route.ts       # Health endpoint
 │   │       ├── medications/route.ts  # Medication CRUD
@@ -76,16 +73,17 @@ c:\Users\ACER\Documents\Saharacare/
 │   │   ├── layout/
 │   │   │   ├── Header.tsx            # Navigation, language toggle & emergency trigger
 │   │   │   └── BottomNav.tsx         # Mobile-first bottom action bar
+│   │   ├── accessibility/
+│   │   │   └── FontSizeControl.tsx   # Normal / Large / Extra-Large text switcher
 │   │   ├── patient/
+│   │   │   ├── PatientHeaderCard.tsx # Kathmandu date & animated adherence bar
 │   │   │   ├── TodayDoseTimeline.tsx # Morning/Afternoon/Evening dose list
-│   │   │   ├── DoseItemCard.tsx      # Individual dose card with "Mark Taken" button
+│   │   │   ├── MedicationList.tsx    # Active prescription catalogue
 │   │   │   └── MedicationForm.tsx    # Add/edit medication modal form
 │   │   ├── caregiver/
-│   │   │   ├── AdherenceCard.tsx     # Percentage score ring & breakdown
-│   │   │   └── AlertList.tsx         # Missed dose and reminder notifications
+│   │   │   └── CaregiverDashboard.tsx # Adherence score ring & alert feed
 │   │   ├── audio/
-│   │   │   ├── AudioAssistant.tsx    # Speech synthesis & voice recognition bar
-│   │   │   └── VoiceMicButton.tsx    # Accessible microphone toggle with wave state
+│   │   │   └── AudioAssistantCard.tsx # Speech synthesis & voice recognition bar
 │   │   ├── emergency/
 │   │   │   └── EmergencyModal.tsx    # 102/100 quick dialer with local hospitals
 │   │   └── ui/
@@ -93,18 +91,22 @@ c:\Users\ACER\Documents\Saharacare/
 │   │       ├── Card.tsx              # SaharaCare mint-bordered cards
 │   │       └── StatusBadge.tsx       # Scheduled, Taken, Late, Missed badges
 │   ├── lib/
-│   │   ├── db.ts                # `node:sqlite` connection & migration bootstrapping
-│   │   ├── services/            # Business logic for medications, doses, adherence
-│   │   ├── i18n/
-│   │   │   ├── en.ts            # English translations
-│   │   │   └── ne.ts            # Nepali translations (देवनागरी)
-│   │   └── audio.ts             # Web Speech API helpers & browser fallback guards
+│   │   ├── db.ts                # `node:sqlite` connection & schema bootstrapping
+│   │   ├── api.ts               # Typed client fetch helpers
+│   │   ├── audio.ts             # Web Speech API helpers & browser fallback guards
+│   │   ├── services/
+│   │   │   ├── medicationService.ts # Medication management & dose materialization
+│   │   │   ├── doseService.ts       # Dose transitions & adherence calculations
+│   │   │   └── caregiverService.ts  # Patient summary & alert aggregation
+│   │   └── i18n/
+│   │       ├── en.ts            # English translations
+│   │       └── ne.ts            # Nepali translations (देवनागरी)
 │   └── types/
 │       └── index.ts             # Shared domain models and API contracts
 └── tests/
-    ├── db.test.mjs              # SQLite schema, foreign keys & seeding tests
-    ├── doses.test.mjs           # Dose state transitions & adherence calculation tests
-    └── api.test.mjs             # API endpoint responses & error handling tests
+    ├── audio.test.mjs           # Audio synthesis & voice fallback tests
+    ├── backend.test.mjs         # SQLite schema, foreign keys & seeding tests
+    └── integration.test.mjs     # End-to-end integration & business flow tests
 ```
 
 ---
@@ -116,10 +118,12 @@ The SQLite schema represents the core domain without bloated legacy tables:
 ### 3.1 `patients` Table
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | TEXT | PRIMARY KEY | Unique UUID or slug (e.g., `patient-ram`) |
+| `id` | TEXT | PRIMARY KEY | Unique UUID or slug (e.g., `patient-ram-01`) |
 | `name` | TEXT | NOT NULL | Patient's full name |
+| `age` | INTEGER | NOT NULL | Patient's age |
 | `phone` | TEXT | | Contact phone number |
 | `emergency_contact` | TEXT | | Designated family contact |
+| `caregiver_name` | TEXT | | Primary family caregiver |
 | `created_at` | TEXT | NOT NULL | ISO8601 creation timestamp |
 
 ### 3.2 `medications` Table
@@ -140,41 +144,39 @@ The SQLite schema represents the core domain without bloated legacy tables:
 | `id` | TEXT | PRIMARY KEY | Unique dose record ID |
 | `medication_id` | TEXT | REFERENCES medications(id) | Linked medication |
 | `date_key` | TEXT | NOT NULL | Date format `YYYY-MM-DD` in Asia/Kathmandu |
-| `scheduled_time` | TEXT | NOT NULL | Time format `HH:MM` (e.g., `08:00`) |
+| `scheduled_time` | TEXT | NOT NULL | Time format `HH:MM` (e.g., `08:00 AM`) |
 | `status` | TEXT | NOT NULL | `scheduled` \| `taken` \| `late` \| `missed` |
-| `taken_at` | TEXT | | Actual ISO timestamp when taken |
+| `taken_at` | TEXT | | Actual timestamp when taken |
 
 ### 3.4 `caregiver_alerts` Table
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | TEXT | PRIMARY KEY | Unique alert ID |
 | `patient_id` | TEXT | REFERENCES patients(id) | Patient context |
-| `type` | TEXT | NOT NULL | `missed_dose` \| `late_take` \| `low_adherence` |
+| `type` | TEXT | NOT NULL | `reminder` \| `late_take` \| `missed_dose` |
 | `message` | TEXT | NOT NULL | Human-readable alert summary |
+| `severity` | TEXT | NOT NULL | `info` \| `warning` \| `urgent` |
+| `time` | TEXT | NOT NULL | Human relative timestamp |
 | `created_at` | TEXT | NOT NULL | ISO timestamp |
-| `acknowledged` | INTEGER | DEFAULT 0 | 0=unread, 1=acknowledged |
 
 ---
 
 ## 4. Audio-Assisted Subsystem Architecture
 
-To fulfill the Codefest accessibility directive without introducing brittle external audio APIs:
-
 1. **Text-to-Speech (TTS) Engine:**
-   - Uses `window.speechSynthesis` with configured utterance rate, pitch, and locale (`en-US` or `ne-NP`).
-   - Generates spoken summaries of daily schedules: *"Good morning Ram. You have 2 medicines scheduled today. First: Metformin 500mg, one tablet after breakfast."*
-   - Stop/Pause audio playback controls to respect patient control.
+   - Uses `window.speechSynthesis` with configured utterance rate (0.95), pitch (1.0), and locale (`en-US` or `ne-NP`).
+   - Generates spoken summaries of daily schedules and adherence scores.
+   - Start / Stop playback controls.
 2. **Speech-to-Text (STT) Voice Input:**
    - Uses `SpeechRecognition` / `webkitSpeechRecognition` with explicit microphone permission query.
-   - Live visual status indicator (flashing recording dot & listening feedback).
-   - Allows hands-free symptom logging and search filtering.
+   - Live visual status indicator (pulsing listening wave and live transcript feedback).
 3. **Graceful Fallback Mode:**
-   - If Web Speech API is absent or microphone permission is denied, clear visual text banners and large-font buttons appear so that no functionality is blocked.
+   - Visual text fallback banners if speech synthesis or microphone input is unsupported or denied.
 
 ---
 
 ## 5. Security & Privacy Safeguards
 
-- **Synthetic Patient Data Only:** All initial seeds use synthetic mock personas (e.g., "Ram Bahadur Shrestha", "Sita Devi"). Zero real patient data or PII.
-- **Local Isolation:** The SQLite database stays securely on the local device at `data/saharacare.db`.
-- **Zero Insecure Key Leaks:** No third-party API keys or sensitive credentials exposed in client bundles.
+- **Synthetic Patient Data Only:** All initial seeds use synthetic mock personas (`Ram Bahadur Shrestha`).
+- **Local SQLite Isolation:** Stored in `data/saharacare.db` with zero external cloud leaks.
+- **Zero Insecure Key Leaks:** No third-party API keys or sensitive credentials exposed.
