@@ -11,8 +11,8 @@
 | Stage | Name | Target Outcome | Status | Commit SHA |
 | :--- | :--- | :--- | :--- | :--- |
 | **Stage 0** | Initial Analysis & Planning | Comprehensive audit, feature inventory, architecture & Codefest plan | **COMPLETED** | `f52bd4c` |
-| **Stage 1** | Fresh Project Foundation | Scaffold empty Next.js project, TypeScript, Tailwind, initial README | **COMPLETED** | `Pending` |
-| **Stage 2** | Basic Frontend Implementation | Core layouts, navigation, patient dashboard, mock user journey | Planned | - |
+| **Stage 1** | Fresh Project Foundation | Scaffold empty Next.js project, TypeScript, Tailwind, initial README | **COMPLETED** | `730d8f2` |
+| **Stage 2** | Basic Frontend Implementation | Core layouts, navigation, patient dashboard, mock user journey | **COMPLETED** | `Pending` |
 | **Stage 3** | UI/UX Improvement | SaharaCare forest-green design system, responsive cards, accessibility | Planned | - |
 | **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | Planned | - |
 | **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | Planned | - |
@@ -60,3 +60,31 @@
   - `src/app/api/health/route.ts`
 - **Verification:**
   - `npm run build` executed successfully producing optimized static and dynamic routes with zero warnings.
+
+### STAGE 2: Basic Frontend Implementation
+- **Status:** COMPLETED
+- **Features Implemented:**
+  - Domain models defined in `src/types/index.ts` (`Medication`, `TodayDose`, `AdherenceSummary`, `CaregiverAlert`, `PatientProfile`).
+  - Bilingual localization catalogs created (`en.ts` and `ne.ts`) with 100% key parity.
+  - Navigation & Layout: Header with real-time role toggle (Patient vs Caregiver), language toggle (English/Nepali), and SOS Emergency trigger.
+  - Core User Journey:
+    - Today's Dose Timeline partitioned by Time of Day (Morning, Afternoon, Evening, Night).
+    - Interactive "Mark Taken" button updating status to `taken`, recording local timestamp, recalculating daily adherence score, and dispatching caregiver alert.
+    - Medication List and "Add Medicine" modal form with field validation.
+    - Caregiver Oversight Dashboard: Circular adherence progress indicator, taken vs pending breakdown, and real-time alert feed.
+    - Emergency Modal featuring Nepal national hotlines (Ambulance 102, Police 100, Red Cross).
+  - Loading, empty, and dismissible feedback notification states.
+- **Files Created:**
+  - `src/types/index.ts`
+  - `src/lib/i18n/en.ts`, `src/lib/i18n/ne.ts`
+  - `src/lib/mock-data.ts`
+  - `src/components/ui/Button.tsx`, `src/components/ui/Card.tsx`, `src/components/ui/StatusBadge.tsx`
+  - `src/components/layout/Header.tsx`
+  - `src/components/patient/TodayDoseTimeline.tsx`
+  - `src/components/patient/MedicationForm.tsx`
+  - `src/components/patient/MedicationList.tsx`
+  - `src/components/caregiver/CaregiverDashboard.tsx`
+  - `src/components/emergency/EmergencyModal.tsx`
+  - `src/app/page.tsx` (Updated with complete stateful client workflows)
+- **Verification:**
+  - `npm run build` completed cleanly with 0 TypeScript or rendering errors.
