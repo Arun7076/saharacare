@@ -13,8 +13,8 @@
 | **Stage 0** | Initial Analysis & Planning | Comprehensive audit, feature inventory, architecture & Codefest plan | **COMPLETED** | `f52bd4c` |
 | **Stage 1** | Fresh Project Foundation | Scaffold empty Next.js project, TypeScript, Tailwind, initial README | **COMPLETED** | `730d8f2` |
 | **Stage 2** | Basic Frontend Implementation | Core layouts, navigation, patient dashboard, mock user journey | **COMPLETED** | `4b41bb5` |
-| **Stage 3** | UI/UX Improvement | SaharaCare forest-green design system, responsive cards, accessibility | **COMPLETED** | `Pending` |
-| **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | Planned | - |
+| **Stage 3** | UI/UX Improvement | SaharaCare forest-green design system, responsive cards, accessibility | **COMPLETED** | `5bbf031` |
+| **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | **COMPLETED** | `Pending` |
 | **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | Planned | - |
 | **Stage 6** | Audio-Assisted System | Speech synthesis, voice input, mic controls, accessible fallback | Planned | - |
 | **Stage 7** | Verification & Final Polish | Automated tests, comprehensive review, handoff documentation | Planned | - |
@@ -105,3 +105,32 @@
   - `src/app/page.tsx` (Enhanced with dynamic font sizing and mobile layout integration)
 - **Verification:**
   - `npm run build` completed successfully with zero type or CSS compilation issues.
+
+### STAGE 4: Backend Implementation and Data Layer
+- **Status:** COMPLETED
+- **Features Implemented:**
+  - Embedded Relational Persistence: Implemented Node.js 24 native synchronous SQLite (`node:sqlite`), auto-initializing `data/saharacare.db` with foreign key enforcement and automated bootstrapping.
+  - Schema & Data Models: Created relational tables (`patients`, `medications`, `dose_records`, `caregiver_alerts`).
+  - Synthetic Data Seeding: Auto-seeded initial patient (Ram Bahadur Shrestha), active prescriptions, today's schedule in `Asia/Kathmandu` timezone, and caregiver alerts without using any real PII.
+  - Service Layer:
+    - `medicationService`: Get active medications, create new medication, and atomically materialize today's dose.
+    - `doseService`: Retrieve today's dose timeline, execute mark-taken status transitions, calculate adherence percentages, and register caregiver alerts.
+    - `caregiverService`: Aggregate linked patient summary, compliance score, and notification feed.
+  - Next.js API Routes:
+    - `GET /api/medications` & `POST /api/medications` (with request validation)
+    - `GET /api/doses` & `PATCH /api/doses` (dose status update & adherence calculation)
+    - `GET /api/caregiver` (monitoring overview)
+    - `GET /api/health` (system verification)
+  - Independent Backend Verification: Authored `tests/backend.test.mjs` running against an isolated SQLite test suite.
+- **Files Created:**
+  - `src/lib/db.ts`
+  - `src/lib/services/medicationService.ts`
+  - `src/lib/services/doseService.ts`
+  - `src/lib/services/caregiverService.ts`
+  - `src/app/api/medications/route.ts`
+  - `src/app/api/doses/route.ts`
+  - `src/app/api/caregiver/route.ts`
+  - `tests/backend.test.mjs`
+- **Verification:**
+  - `node --test tests/backend.test.mjs` passed 5/5 tests in 7.3ms.
+  - `npm run build` compiled 8/8 routes cleanly.
