@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { PatientHeaderCard } from "@/components/patient/PatientHeaderCard";
+import { AudioAssistantCard } from "@/components/audio/AudioAssistantCard";
 import { TodayDoseTimeline } from "@/components/patient/TodayDoseTimeline";
 import { MedicationList } from "@/components/patient/MedicationList";
 import { MedicationForm } from "@/components/patient/MedicationForm";
@@ -96,17 +97,14 @@ export default function SaharaCareApp() {
     try {
       const res = await api.markDoseTaken(doseId);
       if (res.success) {
-        // Update local doses
         setDoses((prev) =>
           prev.map((d) => (d.id === doseId ? res.dose : d))
         );
-        // Update adherence score from server calculation
         setAdherence(res.adherence);
 
-        setFeedbackMessage(`Confirmed: ${res.dose.medicationName} marked as taken on server.`);
+        setFeedbackMessage(`Confirmed: ${res.dose.medicationName} marked as taken.`);
         setTimeout(() => setFeedbackMessage(null), 3500);
 
-        // Refresh caregiver alerts
         const caregiverRes = await api.getCaregiverOverview();
         if (caregiverRes.success) {
           setAlerts(caregiverRes.alerts);
@@ -133,7 +131,6 @@ export default function SaharaCareApp() {
       if (res.success) {
         setMedications((prev) => [res.medication, ...prev]);
 
-        // Refresh doses so today's materialized schedule is updated
         const dosesRes = await api.getDoses();
         if (dosesRes.success) {
           setDoses(dosesRes.doses);
@@ -216,6 +213,17 @@ export default function SaharaCareApp() {
               <div className="space-y-5">
                 {/* Patient Header Progress Card */}
                 <PatientHeaderCard adherence={adherence} lang={lang} />
+
+                {/* Audio-Assisted Accessibility Subsystem */}
+                <AudioAssistantCard
+                  doses={doses}
+                  adherence={adherence}
+                  lang={lang}
+                  onVoiceSearch={(query) => {
+                    setFeedbackMessage(`Voice note detected: "${query}"`);
+                    setTimeout(() => setFeedbackMessage(null), 3500);
+                  }}
+                />
 
                 {/* Tab Navigation */}
                 <div className="flex items-center justify-between border-b border-mint-200 pb-3">

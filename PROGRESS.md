@@ -15,8 +15,8 @@
 | **Stage 2** | Basic Frontend Implementation | Core layouts, navigation, patient dashboard, mock user journey | **COMPLETED** | `4b41bb5` |
 | **Stage 3** | UI/UX Improvement | SaharaCare forest-green design system, responsive cards, accessibility | **COMPLETED** | `5bbf031` |
 | **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | **COMPLETED** | `3926fc5` |
-| **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | **COMPLETED** | `Pending` |
-| **Stage 6** | Audio-Assisted System | Speech synthesis, voice input, mic controls, accessible fallback | Planned | - |
+| **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | **COMPLETED** | `39326b5` |
+| **Stage 6** | Audio-Assisted System | Speech synthesis, voice input, mic controls, accessible fallback | **COMPLETED** | `Pending` |
 | **Stage 7** | Verification & Final Polish | Automated tests, comprehensive review, handoff documentation | Planned | - |
 
 ---
@@ -152,3 +152,25 @@
 - **Verification:**
   - `npm test` passed 9/9 tests across both backend and integration suites.
   - `npm run build` compiled 8/8 routes with zero errors.
+
+### STAGE 6: Audio-Assisted System
+- **Status:** COMPLETED
+- **Features Implemented:**
+  - Built Audio Accessibility Subsystem (`src/lib/audio.ts`):
+    - Text-to-Speech (TTS): Speech synthesis reading today's schedule, medication names, dosages, instructions, and current adherence score in clear synthesized speech.
+    - Bilingual Speech Engine: Automatic voice locale selection (`en-US` or `ne-NP` for Nepali).
+    - Speech-to-Text (STT): Hands-free microphone voice input for dictating symptom notes or search filtering.
+    - Explicit Audio Controls: Start audio reading, Stop audio playback, and cancel speech synthesis anytime.
+    - Microphone Status Indicators: Live pulsing recording wave, listening badge, and real-time transcript preview.
+    - Permission & Error Handling: Detects denied microphone permissions, silence timeouts, and unsupported browser states with clear visual alerts.
+    - Deterministic Accessibility Fallback: Text banner ensuring full accessibility even if speech APIs are blocked or unavailable.
+  - Audio Component (`AudioAssistantCard.tsx`): Prominent accessible card integrated directly above the Today's Dose timeline.
+  - Audio Unit Test Suite (`tests/audio.test.mjs`): Asserts English/Nepali script synthesis, error handlers, and fallback detection.
+- **Files Created / Modified:**
+  - `src/lib/audio.ts`
+  - `src/components/audio/AudioAssistantCard.tsx`
+  - `src/app/page.tsx` (Integrated AudioAssistantCard with voice query feedback)
+  - `tests/audio.test.mjs`
+- **Verification:**
+  - `npm test` passed 13/13 tests across all 3 test suites in 178ms.
+  - `npm run build` compiled cleanly.
