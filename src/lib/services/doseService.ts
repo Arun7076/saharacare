@@ -1,4 +1,4 @@
-import { getDatabase, getKathmanduDateKey } from "@/lib/db";
+import { getDatabase, getKathmanduDateKey } from "../db";
 import { TodayDose, AdherenceSummary, DoseStatus, TimeOfDay } from "@/types";
 
 export const doseService = {

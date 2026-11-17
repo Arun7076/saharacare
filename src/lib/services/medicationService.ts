@@ -1,4 +1,4 @@
-import { getDatabase, getKathmanduDateKey } from "@/lib/db";
+import { getDatabase, getKathmanduDateKey } from "../db";
 import { Medication, TimeOfDay } from "@/types";
 
 export interface CreateMedicationInput {

@@ -14,8 +14,8 @@
 | **Stage 1** | Fresh Project Foundation | Scaffold empty Next.js project, TypeScript, Tailwind, initial README | **COMPLETED** | `730d8f2` |
 | **Stage 2** | Basic Frontend Implementation | Core layouts, navigation, patient dashboard, mock user journey | **COMPLETED** | `4b41bb5` |
 | **Stage 3** | UI/UX Improvement | SaharaCare forest-green design system, responsive cards, accessibility | **COMPLETED** | `5bbf031` |
-| **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | **COMPLETED** | `Pending` |
-| **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | Planned | - |
+| **Stage 4** | Backend & Data Layer | SQLite database, schema, CRUD services, validation, API endpoints | **COMPLETED** | `3926fc5` |
+| **Stage 5** | Frontend-Backend Integration | Connected E2E workflows, live dosage mutations, removed mocks | **COMPLETED** | `Pending` |
 | **Stage 6** | Audio-Assisted System | Speech synthesis, voice input, mic controls, accessible fallback | Planned | - |
 | **Stage 7** | Verification & Final Polish | Automated tests, comprehensive review, handoff documentation | Planned | - |
 
@@ -134,3 +134,21 @@
 - **Verification:**
   - `node --test tests/backend.test.mjs` passed 5/5 tests in 7.3ms.
   - `npm run build` compiled 8/8 routes cleanly.
+
+### STAGE 5: Frontend and Backend Integration
+- **Status:** COMPLETED
+- **Features Implemented:**
+  - Typed API Client Layer (`src/lib/api.ts`): Client functions for `getDoses()`, `markDoseTaken()`, `getMedications()`, `createMedication()`, and `getCaregiverOverview()`.
+  - Removed mock data from user journeys: Full client synchronization with live server database endpoints on initial mount and action triggers.
+  - End-to-End Dose Flow: Marking a dose as taken dispatches a `PATCH /api/doses` request, updates database records, recalculates adherence on the server, and dispatches real caregiver alerts.
+  - End-to-End Medication Creation: Submitting the Add Medicine form sends `POST /api/medications`, persists to SQLite, automatically creates today's scheduled dose, and refreshes the patient timeline.
+  - Real-Time Async UX: Added loading spinner on initial fetch, retry banner on network/server errors, and animated confirmation feedback.
+  - End-to-End Integration Test Suite: Authored `tests/integration.test.mjs` asserting all multi-table relational workflows.
+- **Files Created / Modified:**
+  - `src/lib/api.ts`
+  - `src/app/page.tsx` (Connected to live API with async loading and error handling)
+  - `src/lib/services/medicationService.ts`, `src/lib/services/doseService.ts`, `src/lib/services/caregiverService.ts`
+  - `tests/integration.test.mjs`
+- **Verification:**
+  - `npm test` passed 9/9 tests across both backend and integration suites.
+  - `npm run build` compiled 8/8 routes with zero errors.

@@ -1,5 +1,5 @@
-import { getDatabase } from "@/lib/db";
-import { doseService } from "@/lib/services/doseService";
+import { getDatabase } from "../db";
+import { doseService } from "./doseService";
 import { PatientProfile, CaregiverAlert, AdherenceSummary } from "@/types";
 
 export const caregiverService = {
