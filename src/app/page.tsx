@@ -11,12 +11,15 @@ import {
   initialCaregiverAlerts,
 } from "@/lib/mock-data";
 import { Header } from "@/components/layout/Header";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { PatientHeaderCard } from "@/components/patient/PatientHeaderCard";
 import { TodayDoseTimeline } from "@/components/patient/TodayDoseTimeline";
 import { MedicationList } from "@/components/patient/MedicationList";
 import { MedicationForm } from "@/components/patient/MedicationForm";
 import { CaregiverDashboard } from "@/components/caregiver/CaregiverDashboard";
 import { EmergencyModal } from "@/components/emergency/EmergencyModal";
-import { CalendarDays, Pill, Activity, Plus } from "lucide-react";
+import { FontSize } from "@/components/accessibility/FontSizeControl";
+import { CalendarDays, Pill, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function SaharaCareApp() {
@@ -25,6 +28,7 @@ export default function SaharaCareApp() {
   const [activeTab, setActiveTab] = useState<"schedule" | "medicines">("schedule");
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
   const [isAddMedOpen, setIsAddMedOpen] = useState(false);
+  const [fontSize, setFontSize] = useState<FontSize>("normal");
 
   // Application State
   const [medications, setMedications] = useState<Medication[]>(initialMedications);
@@ -70,7 +74,7 @@ export default function SaharaCareApp() {
       setFeedbackMessage(`Confirmed: ${dose.medicationName} marked as taken.`);
       setTimeout(() => setFeedbackMessage(null), 3500);
 
-      // Also add an alert update for caregiver
+      // Add alert update for caregiver
       setAlerts((prev) => [
         {
           id: `alert-${Date.now()}`,
@@ -103,7 +107,6 @@ export default function SaharaCareApp() {
 
     setMedications((prev) => [...prev, newMed]);
 
-    // Also add to today's schedule
     const timeMap: Record<TimeOfDay, string> = {
       morning: "08:00 AM",
       afternoon: "01:00 PM",
@@ -129,8 +132,14 @@ export default function SaharaCareApp() {
     setTimeout(() => setFeedbackMessage(null), 3500);
   };
 
+  const fontSizeClass = {
+    normal: "",
+    large: "text-lg [&_h1]:text-2xl [&_h2]:text-2xl [&_h3]:text-xl [&_p]:text-base [&_span]:text-sm",
+    "extra-large": "text-xl [&_h1]:text-3xl [&_h2]:text-3xl [&_h3]:text-2xl [&_p]:text-lg [&_span]:text-base",
+  }[fontSize];
+
   return (
-    <div className="min-h-screen bg-mint-50 flex flex-col">
+    <div className={`min-h-screen bg-mint-50 flex flex-col pb-20 sm:pb-8 ${fontSizeClass}`}>
       {/* Top Header */}
       <Header
         role={role}
@@ -138,13 +147,15 @@ export default function SaharaCareApp() {
         lang={lang}
         onLanguageToggle={() => setLang((prev) => (prev === "en" ? "ne" : "en"))}
         onOpenEmergency={() => setIsEmergencyOpen(true)}
+        fontSize={fontSize}
+        onChangeFontSize={setFontSize}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-5">
         {/* Toast / Feedback Notice */}
         {feedbackMessage && (
-          <div className="p-3.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl text-sm font-semibold flex items-center justify-between shadow-sm animate-in fade-in">
+          <div className="p-3.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-2xl text-sm font-semibold flex items-center justify-between shadow-sm animate-in fade-in">
             <span>{feedbackMessage}</span>
             <button
               onClick={() => setFeedbackMessage(null)}
@@ -158,12 +169,15 @@ export default function SaharaCareApp() {
         {/* Patient View */}
         {role === "patient" && (
           <div className="space-y-5">
+            {/* Patient Header Progress Card */}
+            <PatientHeaderCard adherence={adherence} lang={lang} />
+
             {/* Tab Navigation */}
             <div className="flex items-center justify-between border-b border-mint-200 pb-3">
               <div className="flex space-x-2">
                 <button
                   onClick={() => setActiveTab("schedule")}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                     activeTab === "schedule"
                       ? "bg-forest-900 text-white shadow-sm"
                       : "bg-white text-forest-800 border border-mint-200 hover:bg-mint-100"
@@ -175,7 +189,7 @@ export default function SaharaCareApp() {
 
                 <button
                   onClick={() => setActiveTab("medicines")}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                     activeTab === "medicines"
                       ? "bg-forest-900 text-white shadow-sm"
                       : "bg-white text-forest-800 border border-mint-200 hover:bg-mint-100"
@@ -226,6 +240,16 @@ export default function SaharaCareApp() {
           />
         )}
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <BottomNav
+        role={role}
+        onRoleChange={setRole}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenEmergency={() => setIsEmergencyOpen(true)}
+        lang={lang}
+      />
 
       {/* Emergency Modal */}
       <EmergencyModal
